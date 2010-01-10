@@ -14,7 +14,7 @@ let s:cp['excodes'] = {
         \, 'dickeys'      : [3, "keys doesn't exists in dictionary"] 
         \, 'notreadable'  : [4, "file is not readable or doesn't exists"]
         \, 'failedtocopy' : [5, "failed to copy the file"]
-        \, 'isdirectory'  : [6, "It is a dieectory"]
+        \, 'isdirectory'  : [6, "It is a directory"]
         \, 'notadir'      : [7, "Not a directory"]
         \ }
 
@@ -44,7 +44,11 @@ function! s:cp.main(dic)
         return self['excodes']['notreadable'][0]
     endif
     if isdirectory(copyto)
-        let copyto = copyto."/".fnamemodify(copyfrom, ":t")
+        if copyto[-1:] == '/'
+            let copyto = copyto.fnamemodify(copyfrom, ":t")
+        else
+            let copyto = copyto."/".fnamemodify(copyfrom, ":t")
+        endif
     else
         let todir = fnamemodify(copyto, ":h")
         if !isdirectory(todir)
@@ -56,7 +60,7 @@ function! s:cp.main(dic)
         call Msg("warn", [copyto.": exists"])
         if interactive == "yes"
             call Msg("norm", ["Overwrite ?"])
-            let answer = input("Y[ye]/N[o]: \n")
+            let answer = input("Y[es]/N[o]: \n")
             if answer == "y"
                 let docopy = self.docopy(copyfrom, copyto, verbose)
                 return docopy
@@ -95,13 +99,22 @@ function! s:cp.docopy(copyfrom, copyto, verbose)
     return self['excodes']['norm'][0]
 endfunction
 
-function! s:cp.showcodes()
+function! s:cp.showcodes(...)
     let excodes = []
     for key in keys(self['excodes'])
         let excodes += [join(self['excodes'][key], " : ")]
     endfor
     let excodes = sort(excodes)
-    return join(excodes, "\n")
+    if exists("a:1") && type(a:1) == type(0)
+        if len(excodes) > a:1
+            return excodes[a:1]
+        else
+            call Msg("err", [a:1." : Not such exit code"])
+            return -1
+        endif
+    else
+        return join(excodes, "\n")
+    endif
 endfunction
 
 " vim: et:ts=4 sw=4 fdm=expr fde=getline(v\:lnum)=~'^\\s*$'&&getline(v\:lnum-1)=~'\\S'?'<1'\:1
