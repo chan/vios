@@ -1,13 +1,4 @@
-" *************************************************
-" Description -    
-" Author -        elunix
-" Email -         elunix at gmail dot com
-" Date -          02 Dec 2009 20:28:20
-" Last modified:  
-" Usage:           
-" References:      
-" License: GPL3
-" *************************************************
+
 function! file#read#init(func, ...)
     exec 'let val = call(s:read.'.a:func.', a:000, s:read)'
     return val

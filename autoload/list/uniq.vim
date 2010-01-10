@@ -1,14 +1,3 @@
-" *************************************************
-" Description -    
-" Author -        elunix
-" Email -         elunix at gmail dot com
-" Date -          03 Jan 2010 19:07:24
-" Last modified:  
-" Usage:           
-" References:      
-" License: GPL3
-" *************************************************
-
 
 function! list#uniq#init(func, ...)
     exec 'let val = call(s:uniq.'.a:func.', a:000, s:uniq)'

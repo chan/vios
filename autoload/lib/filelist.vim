@@ -1,13 +1,4 @@
-"" *************************************************
-"" Description -    
-"" Author -        elunix
-"" Email -         elunix at gmail dot com
-"" Date -          12 Dec 2009 14:02:50
-"" Last modified:  
-"" Usage:           
-"" References:      
-"" License: GPL3
-"" *************************************************
+
 function! lib#filelist#init(func, ...)
     exec 'let val = call(s:flist.'.a:func.', a:000, s:flist)'
     return val
