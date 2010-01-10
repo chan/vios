@@ -1,13 +1,4 @@
 " *************************************************
-" Description -    
-" Author -        elunix
-" Email -         elunix at gmail dot com
-" Date -          12 Dec 2009 15:45:08
-" Last modified:  
-" Usage:           
-" References:      
-" License: GPL3
-" *************************************************
 command! -complete=dir -nargs=* Lsf echo system#ls#init("main", "files", <f-args>)
 command! -complete=dir -nargs=* Lsd echo system#ls#init("main", "dirs", <f-args>)
 command! -complete=dir -nargs=* Ls echo system#ls#init("main", "all",  <f-args>)
