@@ -34,7 +34,6 @@ function! s:cp.main(dic)
         endif
     endif
     let copyfrom = expand(copyfrom)
-    let copyto = expand(copyto)
     if isdirectory(copyfrom)
         call Msg("err", [copyfrom.": is a directory. Can't copy"])
         return self['excodes']['isdirectory'][0]
@@ -43,17 +42,22 @@ function! s:cp.main(dic)
         call Msg("err", [copyfrom.': is not readable', "Aborting ..."])
         return self['excodes']['notreadable'][0]
     endif
-    if isdirectory(copyto)
-        if copyto[-1:] == '/'
-            let copyto = copyto.fnamemodify(copyfrom, ":t")
-        else
-            let copyto = copyto."/".fnamemodify(copyfrom, ":t")
-        endif
+    if copyto == '.'
+        let copyto = fnamemodify(copyfrom, ":t")
     else
-        let todir = fnamemodify(copyto, ":h")
-        if !isdirectory(todir)
-            call Msg("err", [todir.": is not a directory. Can't copy"])
-            return self['excodes']['notadir'][0]
+        let copyto = expand(copyto)
+        if isdirectory(copyto)
+            if copyto[-1:] == '/'
+                let copyto = copyto.fnamemodify(copyfrom, ":t")
+            else
+                let copyto = copyto."/".fnamemodify(copyfrom, ":t")
+            endif
+        else
+            let todir = fnamemodify(copyto, ":h")
+            if !isdirectory(todir)
+                call Msg("err", [todir.": is not a directory. Can't copy"])
+                return self['excodes']['notadir'][0]
+            endif
         endif
     endif
     if filereadable(copyto)

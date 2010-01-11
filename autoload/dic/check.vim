@@ -1,5 +1,4 @@
 
-
 function! dic#check#init(func, ...)
     exec 'let val = call(s:check.'.a:func.', a:000, s:check)'
     return val
