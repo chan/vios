@@ -61,4 +61,18 @@ function! s:date.showfmt(...)
     endif
 endfunction
 
+function! s:date.dayoftheyear(day, month, year)
+    if a:month > 1
+        let month = 2
+        let days = 31
+        while month != a:month
+            let days += time#daysinmonth#init('days', month, a:year)
+            let month += 1
+        endwhile
+        return days + a:day
+    else
+        return a:day
+    endif
+endfunction
+
 " vim: et:ts=4 sw=4 fdm=expr fde=getline(v\:lnum)=~'^\\s*$'&&getline(v\:lnum-1)=~'\\S'?'<1'\:1

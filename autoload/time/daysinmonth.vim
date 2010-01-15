@@ -1,3 +1,4 @@
+
 function! time#daysinmonth#init(func, ...)
     exec 'let val = call(s:daysinmonth.'.a:func.', a:000, s:daysinmonth)'
     return val
@@ -21,19 +22,12 @@ let s:daysinmonth['monthindec'] = {
         \ }
 
 function! s:daysinmonth.days(month, year)
-    if type(a:month) != type(0)
-        let month = time#check#init('issuchamonth', a:month)
-        if month == -1
-            return -1
-        endif
+    if time#check#init('month', a:month) != -1 
+        let month = a:month
     else
-        if time#check#init('month', a:month) != -1 
-            let month = a:month
-        else
-            return -1
-        endif
+        return -1
     endif
-    if month == 2 
+    if month == 2
         return self['monthindec'][month] + time#leap#init('isleap', a:year)
     else
         return self['monthindec'][month]

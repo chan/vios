@@ -17,11 +17,6 @@ let s:week['days'] = {
                 \}
 
 function! s:week.iso(day, month, year)
-    let dic = time#check#init('timeformat', a:day, a:month, a:year)
-    if dic['day'] == -1 || dic['month'] == -1 || dic['year'] == -1
-        call Msg("err", ["Time format is wrong"])
-        return -1
-    endif
     let jdn = time#juliandate#init('main', a:day, a:month, a:year, 12)
     if jdn == -1
         return -1
@@ -40,30 +35,17 @@ function! s:week.iso(day, month, year)
 endfunction
 
 function! s:week.day(day, month, year)
-    let dic = time#check#init('timeformat', a:day, a:month, a:year)
-    if dic['day'] == -1 || dic['month'] == -1 || dic['year'] == -1
-        call Msg("err", ["Time format is wrong"])
-        return -1
-    endif
     let jdn = time#juliandate#init('main', a:day, a:month, a:year, 12)
     if jdn == -1
         return -1
     endif
-    if type(a:month) == type('')
-        let month = time#check#init('issuchamonth', a:month)
-        if month == -1
-            return -1
-        endif
-    else
-        let month = a:month
-    endif
-    let a = (14 - month) / 12
+    let a = (14 - a:month) / 12
     if a:year > 0
         let year = a:year - a
     else
         let year = a:year - a  + 1
     endif
-    let month = month + (12 * a ) - 2
+    let month = a:month + (12 * a ) - 2
     if jdn > 2299160
         let day = (a:day + year + (year / 4) - (year / 100) +  (year / 400) + (31 * month) / 12) % 7
     else

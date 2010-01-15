@@ -7,30 +7,17 @@ endfunction
 let s:jdn = {}
 
 function! s:jdn.main(day, month, year, ...)
-    let dic = time#check#init('timeformat', a:day, a:month, a:year)
-    if dic['day'] == -1 || dic['month'] == -1 || dic['year'] == -1
-        call Msg("err", ["Time format is wrong", "Or gave the \"4713 31 December\" as date"])
-        return -1
-    endif
-    if type(a:month) == type('')
-        let month = time#check#init('issuchamonth', a:month)
-        if month == -1
-            return -1
-        endif
-    else
-        let month = a:month
-    endif
-    if (a:year == 1582 && month == 10  && (a:day < 15 && a:day > 4))
+    if (a:year == 1582 && a:month == 10  && (a:day < 15 && a:day > 4))
         call Msg("err", ["This day dissapeared all of a sudden"])
         return -1
     endif
-    let a = (14 - month) / 12
+    let a = (14 - a:month) / 12
     if a:year > 0
         let year = (a:year + 4800) - a
     else
         let year = (a:year + 4801) - a
     endif
-    let month = month +  (12 * a) - 3
+    let month = a:month +  (12 * a) - 3
     if a:year > 1582 || (a:year == 1582 && (month > 10 || (month && a:day > 4)))  
         let jdn = a:day + ((153 * month + 2) / 5) + (year * 365) + (year / 4) - (year / 100) + (year / 400) - 32045
     else
