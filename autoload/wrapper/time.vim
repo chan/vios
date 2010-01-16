@@ -228,4 +228,63 @@ function! s:timewrapper.diffdays()
     \, 'Last date julian date is : '.dic['ljdn']])
 endfunction    
         
+function! s:timewrapper.epochseconds()
+    call Msg("norm", ["This function computes the epoch seconds for the given date"
+        \, 'The time format should be a string, with ":" as separator with the following entries.'
+        \, 'hour:minute:second:day:month:year  (in that order)'
+        \, 'e.g.,'
+        \, '13:32:00:20:07:1979'
+        \, 'That means in 20 of July of the year 1979 in one o'' clock and thirty two minutes.'
+        \, 'Year should be more than 1970'
+        \, 'Month can be a string with at least the first three letters (uppercase or lower case or mixed).'
+        \, 'Confirmation can be achieved in'
+        \, 'http://www.esqsoft.com/javascript_examples/date-to-epoch.htm'
+        \, " ", "Leave empty (hit enter or Y/y) to set the date to currrent time"])
+    let currentdate = confirm("Current time? : ", "&Y[es]\n&N[o]", 1)
+    if currentdate == 1
+        let date = []
+    else
+        let dt = input("Date : \n")
+        let date = split(dt, ":")
+        if len(date) != 6
+            call Msg("err", ["Format doesn't have the neccesarry entries"])
+            return -1
+        else
+            let [hour, min, sec, day, month, year] = date
+            unlet date[4]
+            let isdecimal = str2nr(month)
+            if isdecimal != 0
+                let month = isdecimal
+            else
+                let month = time#abrmonths#main(month)
+                if month == -1
+                    return -1
+                endif
+            endif
+            let check = time#check#init('timeformat', day, month, year)
+            if check['year'] == -1 || check['month'] == -1 || check['day'] == -1
+                return -1
+            else
+                let datecheck = time#check#init('dateformat', hour, min, sec)
+                if datecheck == -1
+                    return -1
+                endif
+            endif
+            call insert(date, month, 4)
+        endif
+    endif
+    call Msg("norm", ['Set the timezone.', 'You can set it to UTC, or to the desired
+        \ timezone, e.g., "+2"'])
+    let tz = input("Timezone : ")
+    try
+        let epochseconds = time#epoch#init('main', date, tz)
+    catch /.*/
+        call Msg("err", ['Error returned by calling the s:epoch.main function'
+                    \,  'VIM EXCEPTION is : '.v:exception])
+        return -1
+    endtry
+    call Msg("norm", [" ", 'Epoch seconds for : '.time#epoch#init('convert', epochseconds)
+        \, 'is : '.epochseconds])
+endfunction
+
 " vim: et:ts=4 sw=4 fdm=expr fde=getline(v\:lnum)=~'^\\s*$'&&getline(v\:lnum-1)=~'\\S'?'<1'\:1
