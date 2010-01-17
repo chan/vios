@@ -287,4 +287,45 @@ function! s:timewrapper.epochseconds()
         \, 'is : '.epochseconds])
 endfunction
 
+function! s:timewrapper.moonphase()
+    call Msg("norm", ["This function computes the moon phase"
+        \, "Thanks to  http://home.att.net/~srschmitt/zenosamples/zs_lunarphasecalc.html"
+        \, "for the algorithm"
+        \, " ", "Leave empty (hit enter or Y/y) to set the date to currrent time"])
+    let currentdate = confirm("Current time? : ", "&Y[es]\n&N[o]", 1)
+    if currentdate == 1
+        let date = []
+    else
+        let dt = input("Date : \n")
+        let date = split(dt, ":")
+        if len(date) != 6
+            call Msg("err", ["Format doesn't have the neccesarry entries"])
+            return -1
+        else
+            let [hour, min, sec, day, month, year] = date
+            unlet date[4]
+            let isdecimal = str2nr(month)
+            if isdecimal != 0
+                let month = isdecimal
+            else
+                let month = time#abrmonths#main(month)
+                if month == -1
+                    return -1
+                endif
+            endif
+            let check = time#check#init('timeformat', day, month, year)
+            if check['year'] == -1 || check['month'] == -1 || check['day'] == -1
+                return -1
+            else
+                let datecheck = time#check#init('dateformat', hour, min, sec)
+                if datecheck == -1
+                    return -1
+                endif
+            endif
+            call insert(date, month, 4)
+        endif
+    endif
+    return time#moon#init('phase', date)
+endfunction
+
 " vim: et:ts=4 sw=4 fdm=expr fde=getline(v\:lnum)=~'^\\s*$'&&getline(v\:lnum-1)=~'\\S'?'<1'\:1
