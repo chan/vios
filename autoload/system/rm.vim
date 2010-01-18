@@ -62,8 +62,20 @@ function! s:rm.list(filelist)
     setlocal more
 endfunction
 
-function! s:rm.file(file)
+function! s:rm.file(file, ...)
     if !isdirectory(a:file)
+        if filereadable(a:file) == 1
+            if exists("a:1") && a:1 == "-i"
+                let confirm = confirm("Continue to remove ".a:file, "&Y[es]\n&n[o]")
+                if confirm == 2
+                    call Msg("warn", ["Aborting ..."])
+                    return 1
+                endif
+            endif
+        else
+            call Msg("warn", [a:file." : Doesn't exists", "Aborting ..."])
+            return -1
+        endif
         if delete(a:file) == 0
             call Msg('norm', [a:file.": --> removed"])
             return

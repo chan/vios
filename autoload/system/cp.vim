@@ -14,8 +14,8 @@ let s:cp['excodes'] = {
         \, 'dickeys'      : [3, "keys doesn't exists in dictionary"] 
         \, 'notreadable'  : [4, "file is not readable or doesn't exists"]
         \, 'failedtocopy' : [5, "failed to copy the file"]
-        \, 'isdirectory'  : [6, "It is a directory"]
-        \, 'notadir'      : [7, "Not a directory"]
+        \, 'isdirectory'  : [6, "it is a directory"]
+        \, 'notadir'      : [7, "not a directory"]
         \ }
 
 function! s:cp.main(dic)

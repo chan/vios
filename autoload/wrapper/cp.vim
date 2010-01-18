@@ -20,13 +20,17 @@ function! s:cp.main(copyfrom, copyto)
     endif
 endfunction
 
-function! s:cp.files(fromdir, todir, ...)
-    let fromdir = expand(a:fromdir)
-    let todir = expand(a:todir)
+function! s:cp.files()
+    call Msg("norm", ["Cp files from source to destination"])
+    let fromdir = fnamemodify(input("Source directory : ", "", "dir"), ":p")
     if !isdirectory(fromdir)
-        call Msg("err", [a:fromdir." : Not a directory"])
+        call Msg("err", [fromdir." : Not a directory"])
         return -1
     endif
+    let curdir = getcwd()
+    exec "cd ".fromdir
+    let glob = input("An optional filter: ", "", "file")
+    let todir = fnamemodify(input("Destination directory: ", "", "dir"), ":p")
     if !isdirectory(todir)
         call Msg("warn", [a:todir." : Doesn't exists"])
         let answer = input("Create it? Y[es]/N[o]\n")
@@ -39,11 +43,8 @@ function! s:cp.files(fromdir, todir, ...)
             endif
         endif
     endif
-    if exists("a:1") 
-        let filelist = lib#filelist#init('main', a:fromdir, a:1)['file']
-    else
-        let filelist = lib#filelist#init('main', a:fromdir)['file']
-    endif
+    let filelist = lib#filelist#init('indir', empty(glob) ? "*" : glob)['file']
+    exec "cd ".curdir
     for file in filelist
         let excode = self.main(fromdir."/".file, todir)
         if excode != 0

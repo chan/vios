@@ -112,9 +112,29 @@ function! s:ls.main(display, ...)
                 endfor
                 call insert(dic['socket'], "\n".repeat("=", 30)." SOCKETS ".repeat("=", 30)."\n")
                 let report .= "\n".join(dic['socket'], "\n")
-            endif
+           endif
+        endif
     endif
     return report
+endfunction 
+
+function! s:ls.maina(dic)
+    let dir = a:dic['dir']
+    let glob = a:dic['glob']
+    let show = a:dic['show']
+    let sort = a:dic['sort']
+    let filelist = lib#filelist#init('indir', glob)
+    if show == 'all'
+        let report = self.report(sort, filelist)
+    else
+        let report = self.report(sort, filelist[show])
+    endif
+    return report
+endfunction
+
+function! s:ls.report(sort, filelist)
+    if type(a:filelist) == type({}}
+    endif
 endfunction 
 
 " vim: et:ts=4 sw=4 fdm=expr fde=getline(v\:lnum)=~'^\\s*$'&&getline(v\:lnum-1)=~'\\S'?'<1'\:1

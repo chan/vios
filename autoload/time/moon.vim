@@ -25,14 +25,14 @@ function! s:moon.phase(time)
     let pi = 3.1415926535897932385
     if empty(a:time) == 1
         let date = strftime("%T:%d:%m:%Y", localtime())
-        if date > '03:14:07:19:01:2038'
-            call Msg("err", ["2038 bug, the time ends at ".strftime('%Y:%m:%d %T', 2147483647)])
-            return -1
-        endif
         let time = split(date, ":")
         let [hour, min, sec, day, month, year] = time
     else
         let [hour, min, sec, day, month, year] = a:time
+    endif
+    if (year >= 2038) && (month >= 1) && (day >= 19) && (hour >= 3) && (min >= 14) && (sec >= 7)
+        call Msg("err", ["2038 bug, the time ends at ".strftime('%Y:%m:%d %T', 2147483647)])
+        return -1
     endif
     let jdn = time#juliandate#init('main', day, month, year, hour)
 	let ip = (jdn - 2451550.1) / 29.530588853

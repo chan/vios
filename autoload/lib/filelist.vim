@@ -1,27 +1,23 @@
 
 function! lib#filelist#init(func, ...)
-    exec 'let val = call(s:flist.'.a:func.', a:000, s:flist)'
+    exec 'let val = call(s:filelist.'.a:func.', a:000, s:filelist)'
     return val
 endfunction
 
-let s:flist = {}
+let s:filelist = {}
 
-function! s:flist.main(dir, ...)
-    let todir = expand(a:dir)
-    let curdir = getcwd()
+function! s:filelist.indir(filter)
     let dic = {}
     for i in ['file', 'dir', 'link', 'cdev', 'bdev', 'socket', 'fifo', 'other']
         let dic[i] = []
     endfor
-    exec "cd ".todir
-    let list = !exists("a:1") ? split(glob("*"), "\n") : split(glob(a:1), "\n")
+    let list = split(glob(a:filter), "\n")
     for filename in list
         let type = getftype(filename)
         if !empty(type)
             call add(dic[type], filename)
         endif
     endfor
-    exec "cd ".curdir
     return dic
 endfunction
 

@@ -6,29 +6,46 @@ endfunction
 
 let s:wrapperrm = {}
 
-function! s:wrapperrm.all(dir, interactive)
-    if a:dir == "."
-        let dir = getcwd()
+function! s:wrapperrm.all(dir, interactive, ...)
+    let curdir = getcwd()
+    if a:interactive == 1
+        call Msg("norm", ["Choose a directory : "
+            \, "A single dot means the current directory"
+            \, "Hit the tab key for completion" 
+            \, "Enter cansels the operation"])
+        let dir = input("Directory :", "", "dir")
+        if empty(dir)
+            return
+        elseif dir == "."
+            let dir = curdir
+        endif
+        call Msg("norm", ["An optional glob (leave empty to remove everything) : "])
+        let glob = input("", "", "file")
+        let filelist = ["-i"]
     else
-        let dir = expand(a:dir)
+        if a:dir == "."
+            let dir = getcwd()
+        else
+            let dir = expand(a:dir)
+        endif
+        if exists("a:1") && !empty(a:1)
+            let glob = a:1
+        else
+            let glob = "*"
+        endif
+        let filelist = []
     endif
     if !isdirectory(dir)
         call Msg("err", [dir.': Not a directory'])
         return -1
     else
-        let filelist = lib#filelist#init('main', dir)['file']
-        if a:interactive == 1
-            let filelist = insert(filelist, '-i')
-        endif
-        let curdir = getcwd()
         if curdir != dir
             exec "cd ".dir
-            let excode = system#rm#init('list', filelist)
-            exec "cd ".curdir
-            return excode
-        else
-            return system#rm#init('list', filelist)
         endif
+        let filelist += lib#filelist#init('indir', empty(glob) ? "*" : glob)['file']
+        let excode = system#rm#init('list', filelist)
+        exec "cd ".curdir
+        return excode
     endif
 endfunction
 
