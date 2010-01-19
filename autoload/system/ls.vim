@@ -6,135 +6,68 @@ endfunction
 
 let s:ls = {}
 
-function! s:ls.main(display, ...)
-    if exists("a:1") && !empty(a:1)
-        let dir = expand(a:1."/")
-    elseif !exists("a:1") || a:1 == "\."
-        let dir = getcwd()."/"
-    endif
-    if !isdirectory(dir)
-        call Msg("err", [dir.': Doesn''t exists'])
-        return -1
-    endif
-    let dic = !exists("a:2") ? lib#filelist#init('main', dir)
-                            \: lib#filelist#init('main', dir, a:2)
-    if type(dic) != type({})
-        call Msg("err", ['lib#filelist#init function returned an error'])
-        return -1
-    else
-        let report = ''
-        if a:display == "files" || a:display == "all"
-            if !empty(dic['file'])
-                call reverse(sort(map(dic['file'], 'getftime(dir.v:val)." ".v:val')))
-                for item in dic['file']
-                    let i = split(item)
-                    let dic['file'][index(dic['file'], item)] = getfperm(dir.i[1])."\t".printf("%12d", getfsize(dir.i[1]))."\t\t".strftime("%Y-%m-%d %H:%M:%S", i[0])."\t".i[1]
-                endfor
-                call insert(dic['file'], "\n".repeat("=", 30)." FILES ".repeat("=", 30)."\n")
-                let report .= join(dic['file'], "\n")
-            endif
-        endif
-        if a:display == "dirs" || a:display == "all"
-            if !empty(dic['dir'])
-                "TODO: Fix the filter
-                call filter(dic['dir'], 'v:val !~# "/\?v\d\+$"')
-                call reverse(sort(map(dic['dir'], 'getftime(dir.v:val)." ".v:val')))
-                for item in dic['dir']
-                    let i = split(item)
-                    let dic['dir'][index(dic['dir'], item)] = getfperm(dir.i[1])."\t".printf("%12d", getfsize(dir.i[1]))."\t\t".strftime("%Y-%m-%d %H:%M:%S", i[0])."\t".i[1]
-                endfor
-                call insert(dic['dir'], "\n".repeat("=", 30)." DIRECTORIES ".repeat("=", 30)."\n")
-                let report .= "\n".join(dic['dir'], "\n")
-            endif
-        endif
-        if a:display == "cdev" || a:display == "all"
-            if !empty(dic['cdev'])
-                call reverse(sort(map(dic['cdev'], 'getftime(dir.v:val)." ".v:val')))
-                for item in dic['cdev']
-                    let i = split(item)
-                    let dic['cdev'][index(dic['cdev'], item)] = getfperm(dir.i[1])."\t".printf("%12d", getfsize(dir.i[1]))."\t\t".strftime("%Y-%m-%d %H:%M:%S", i[0])."\t".i[1]
-                endfor
-                call insert(dic['cdev'], "\n".repeat("=", 30)." CHARACTER DEVICES ".repeat("=", 30)."\n")
-                let report .= "\n".join(dic['cdev'], "\n")
-            endif
-        endif
-        if a:display == "bdev" || a:display == "all"
-            if !empty(dic['bdev'])
-                call reverse(sort(map(dic['bdev'], 'getftime(dir.v:val)." ".v:val')))
-                for item in dic['bdev']
-                    let i = split(item)
-                    let dic['bdev'][index(dic['bdev'], item)] = getfperm(dir.i[1])."\t".printf("%12d", getfsize(dir.i[1]))."\t\t".strftime("%Y-%m-%d %H:%M:%S", i[0])."\t".i[1]
-                endfor
-                call insert(dic['bdev'], "\n".repeat("=", 30)." BLOCK DEVICES ".repeat("=", 30)."\n")
-                let report .= "\n".join(dic['bdev'], "\n")
-            endif
-        endif
-        if a:display == "fifo" || a:display == "all"
-            if !empty(dic['fifo'])
-                call reverse(sort(map(dic['fifo'], 'getftime(dir.v:val)." ".v:val')))
-                for item in dic['fifo']
-                    let i = split(item)
-                    let dic['fifo'][index(dic['fifo'], item)] = getfperm(dir.i[1])."\t".printf("%12d", getfsize(dir.i[1]))."\t\t".strftime("%y-%m-%d %h:%m:%s", i[0])."\t".i[1]
-                endfor
-                call insert(dic['fifo'], "\n".repeat("=", 30)." FIFO ".repeat("=", 30)."\n")
-                let report .= "\n".join(dic['fifo'], "\n")
-            endif
-        endif
-        if a:display == "other" || a:display == "all"
-            if !empty(dic['other'])
-                call reverse(sort(map(dic['other'], 'getftime(dir.v:val)." ".v:val')))
-                for item in dic['other']
-                    let i = split(item)
-                    let dic['other'][index(dic['other'], item)] = getfperm(dir.i[1])."\t".printf("%12d", getfsize(dir.i[1]))."\t\t".strftime("%Y-%m-%d %H:%M:%S", i[0])."\t".i[1]
-                endfor
-                call insert(dic['other'], "\n".repeat("=", 30)." OTHER ".repeat("=", 30)."\n")
-                let report .= "\n".join(dic['other'], "\n")
-            endif
-        endif
-        if a:display == "link" || a:display == "all"
-            if !empty(dic['link'])
-                call reverse(sort(map(dic['link'], 'getftime(dir.v:val)." ".v:val')))
-                for item in dic['link']
-                    let i = split(item)
-                    let resolved = resolve(dir.i[1])
-                    let dic['link'][index(dic['link'], item)] = getfperm(dir.i[1])."\t".printf("%12d", getfsize(dir.i[1]))."\t\t".strftime("%Y-%m-%d %H:%M:%S", i[0])."\t".i[1]." --> ".resolved
-                endfor
-                call insert(dic['link'], "\n".repeat("=", 30)." Links ".repeat("=", 30)."\n")
-                let report .= "\n".join(dic['link'], "\n")
-            endif
-        endif
-        if a:display == "socket" || a:display == "all"
-            if !empty(dic['socket'])
-                call reverse(sort(map(dic['socket'], 'getftime(dir.v:val)." ".v:val')))
-                for item in dic['socket']
-                    let i = split(item)
-                    let dic['socket'][index(dic['socket'], item)] = getfperm(dir.i[1])."\t".printf("%12d", getfsize(dir.i[1]))."\t\t".strftime("%Y-%m-%d %H:%M:%S", i[0])."\t".i[1]
-                endfor
-                call insert(dic['socket'], "\n".repeat("=", 30)." SOCKETS ".repeat("=", 30)."\n")
-                let report .= "\n".join(dic['socket'], "\n")
-           endif
-        endif
-    endif
-    return report
-endfunction 
+let s:ls['dirfilter'] = "/\?v\d\+$"
 
-function! s:ls.maina(dic)
+function! s:ls.main(dic)
+    let curdir = getcwd()
     let dir = a:dic['dir']
     let glob = a:dic['glob']
     let show = a:dic['show']
     let sort = a:dic['sort']
+    exec "cd ".dir
     let filelist = lib#filelist#init('indir', glob)
-    if show == 'all'
-        let report = self.report(sort, filelist)
-    else
-        let report = self.report(sort, filelist[show])
+    if empty(filelist['dir']) == 0 && (show == 'all' || show == 'dirs')
+        call filter(filelist['dir'], 'v:val !~# self["dirfilter"]')
     endif
-    return report
+    let dic = {}
+    for item in ['file', 'dir', 'link', 'cdev', 'bdev', 'socket', 'fifo', 'other']
+        if empty(filelist[item]) == 0
+            let dic[item] = lib#filelist#init('stats', filelist[item], dir)
+            let {item}table = []
+            if sort == 'size' || sort == 'time'
+                for file in keys(dic[item])
+                    let {item}table += [dic[item][file][sort]." ".file]
+                endfor
+                if sort == 'size'
+                    function! Sortbysize(first, second)
+                            let firstitem = str2nr(split(a:first)[0])
+                            let seconditem = str2nr(split(a:second)[0])
+                            return firstitem == seconditem ? 0 : firstitem > seconditem ? 1 : -1
+                    endfunction
+                    let sorted = sort({item}table, "Sortbysize")
+                    let filelist[item] = map(reverse(sorted), 'split(v:val)[1]')
+                else
+                    let filelist[item] = map(reverse(sort({item}table)), 'split(v:val)[1]')
+                endif
+            endif
+        endif
+    endfor
+    let lsreport = 'GENERATED LIST (sorted by '.sort.' ) in '.dir
+    let names = {'file' : "FILES", "dir" : "DIRECTORIES", "link" : "LINKS"
+            \, 'cdev' : "CHARACTER DEVICES", 'bdev' : "BLOCK DEVICES"
+            \, 'socket' : "SOCKETS", 'fifo' : "FIFOS", 'other' : "OTHERS"}
+    let list = ['file', 'dir', 'link', 'cdev', 'bdev', 'socket', 'fifo', 'other']
+    if show != "all"
+        let list = filter(list, 'v:val == show')
+    endif
+    for item in list
+        if empty(filelist[item]) == 0
+            let lsreport .= "\n".repeat("=", 30)." ".names[item]." ".repeat("=", 30)."\n"
+            for file in filelist[item]
+                let lsreport .= dic[item][file]['perm']."\t"
+                    \.printf("%12d", dic[item][file]['size'])
+                    \."\t\t".strftime("%Y-%m-%d %H:%M:%S", dic[item][file]['time'])
+                    \."\t".file
+                if item == 'link'
+                    let resolved = resolve(dir.file)
+                    let lsreport .= " --> ".resolved."\n"
+                else
+                    let lsreport .= "\n"
+                endif
+            endfor
+        endif
+    endfor
+    return lsreport
 endfunction
-
-function! s:ls.report(sort, filelist)
-    if type(a:filelist) == type({}}
-    endif
-endfunction 
 
 " vim: et:ts=4 sw=4 fdm=expr fde=getline(v\:lnum)=~'^\\s*$'&&getline(v\:lnum-1)=~'\\S'?'<1'\:1

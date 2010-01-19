@@ -21,4 +21,16 @@ function! s:filelist.indir(filter)
     return dic
 endfunction
 
+function! s:filelist.stats(filelist, dir)
+    let dic = {}
+    for file in a:filelist
+        let dic[file] = {
+            \  'time' : getftime(a:dir.file)
+            \, 'size' : getfsize(a:dir.file)
+            \, 'perm' : getfperm(a:dir.file)
+            \ }
+    endfor
+    return dic
+endfunction
+
 " vim: et:ts=4 sw=4 fdm=expr fde=getline(v\:lnum)=~'^\\s*$'&&getline(v\:lnum-1)=~'\\S'?'<1'\:1
