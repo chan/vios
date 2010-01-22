@@ -12,5 +12,7 @@ command! Timeepochseconds :echo wrapper#time#init('epochseconds')
 command! Timeepochsecondstodate :let epochseconds = input("Epoch seconds to convert : \n")
     \| echo time#epoch#init('convert', epochseconds)
 command! Timephaseofthemoon : echo wrapper#time#init('moonphase')
+command! -nargs=1 Timeeasterorthodox :echo time#easter#init('orthodox', <args>)
+command! -nargs=1 Timeeastercatholic :echo time#easter#init('catholic', <args>)
 
 " vim: et:ts=4 sw=4 fdm=expr fde=getline(v\:lnum)=~'^\\s*$'&&getline(v\:lnum-1)=~'\\S'?'<1'\:1

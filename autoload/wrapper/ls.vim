@@ -15,17 +15,17 @@ function! s:wrapperls.main(dir, sort, show)
         let dir = fnamemodify(a:dir, ":p")
         let glob = "*"
     elseif match(a:dir, '/') == -1
-        let dir = fnamemodify(curdir, ":p")
-        let glob = a:dir
+        if a:dir == "~"
+            let dir = fnamemodify(a:dir, ":p")
+            let glob = "*"
+        else
+            let dir = fnamemodify(curdir, ":p")
+            let glob = a:dir
+        endif
     else
-        let string = a:dir
-        let match = match(string, '/')
-        let dir = strpart(string, 0, match + 1)
-        while match(string, '/', match + 1) != -1
-            let match = match(string, '/', match + 1)
-            let dir = strpart(string, 0, match  + 1)
-        endwhile
-	    let glob = strpart(string, match + 1)
+        let list = split(substitute(a:dir, '^\(.*/\)\(.*\)', '\1 \2', ''))
+        let [dir, glob] = list
+        let dir = fnamemodify(dir, ":p")
     endif
     try
         exec "cd ".dir
